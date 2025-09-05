@@ -4,13 +4,12 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from helpers.pd import _auto_load, parse_kwargs, _normalize
-
-
 # -------------------------
 # Seaborn plotting UDFs (stateless)
 # -------------------------
-def _insert_figure(fig, name="Figure"):
+
+
+def insert_figure(fig, name="Figure"):
     try:
         caller = xw.Book.caller()
         sht = caller.sheets.active
@@ -22,7 +21,7 @@ def _insert_figure(fig, name="Figure"):
 # helper wrapper for all plots
 
 
-def _plot_wrapper(kind: str, df: pd.DataFrame, plot_name: str, params: dict):
+def plot_wrapper(kind: str, df: pd.DataFrame, plot_name: str, params: dict):
     try:
         # Get seaborn function dynamically
         if not hasattr(sns, kind):
@@ -46,7 +45,7 @@ def _plot_wrapper(kind: str, df: pd.DataFrame, plot_name: str, params: dict):
             fig = plt.gcf()
 
         # Insert back to Excel
-        _insert_figure(fig, name=plot_name)
+        insert_figure(fig, name=plot_name)
         plt.close(fig)
         return f"{kind.capitalize()} done"
 

@@ -2,7 +2,7 @@ import pandas as pd
 import xlwings as xw
 import io
 
-from helpers.pd import _auto_load, parse_kwargs, _auto_cache
+from helpers.pd import parse_kwargs
 
 
 @xw.func

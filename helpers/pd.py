@@ -1,4 +1,5 @@
 import inspect
+import shutil
 import pandas as pd
 import ast
 import os
@@ -10,43 +11,65 @@ from typing import Any
 # -------------------------
 DF_REGISTRY = OrderedDict()
 CACHE_DIR = r"C:\Tools\Automation Scripts\shan_xlwings_project\_df_cache"
+CACHE_MAX_SIZE = 200 * 1024 * 1024  # 200 MB
 os.makedirs(CACHE_DIR, exist_ok=True)
 MEMORY_THRESHOLD = 50_000_000  # 50 MB
 LRU_MAX_ITEMS = 3
 
 
-def _get_cache_path(df_name):
+def get_cache_path(df_name):
     return os.path.join(CACHE_DIR, f"{df_name}.parquet")
 
 
-def _memory_check_and_lru():
+def memory_check_and_lru():
     while len(DF_REGISTRY) > LRU_MAX_ITEMS:
         old_name, old_df = DF_REGISTRY.popitem(last=False)
-        path = _get_cache_path(old_name)
+        path = get_cache_path(old_name)
         old_df.to_parquet(path)
 
 
-def _auto_load(df_name):
+def auto_load(df_name):
     if df_name in DF_REGISTRY:
         DF_REGISTRY.move_to_end(df_name)
         return DF_REGISTRY[df_name]
-    path = _get_cache_path(df_name)
+    path = get_cache_path(df_name)
     if os.path.exists(path):
         df = pd.read_parquet(path)
         DF_REGISTRY[df_name] = df
-        _memory_check_and_lru()
+        memory_check_and_lru()
         return df
     raise ValueError(f"DF '{df_name}' not found")
 
 
-def _auto_cache(df_name, df):
-    path = _get_cache_path(df_name)
+def auto_cache(df_name, df):
+    path = get_cache_path(df_name)
     df.to_parquet(path)
     DF_REGISTRY[df_name] = df
-    _memory_check_and_lru()
+    memory_check_and_lru()
 
 
-def _try_literal_eval(s: str):
+def get_dir_size(path):
+    """Return directory size in bytes."""
+    total = 0
+    for dirpath, _, filenames in os.walk(path):
+        for f in filenames:
+            fp = os.path.join(dirpath, f)
+            if os.path.isfile(fp):
+                total += os.path.getsize(fp)
+    return total
+
+
+def check_cache_dir():
+    """Delete cache dir if it exceeds max size."""
+    size = get_dir_size(CACHE_DIR)
+    if size > CACHE_MAX_SIZE:
+        print(
+            f"[Cache Cleanup] Cache size {size/1e6:.2f} MB exceeded limit. Clearing...")
+        shutil.rmtree(CACHE_DIR)
+        os.makedirs(CACHE_DIR, exist_ok=True)
+
+
+def try_literal_eval(s: str):
     """Try ast.literal_eval, with a fallback to fix Excel-style TRUE/FALSE."""
     if not isinstance(s, str):
         return s
@@ -70,7 +93,7 @@ def _try_literal_eval(s: str):
             return s  # fallback to raw string
 
 
-def _normalize_scalar(v: Any):
+def normalize_scalar(v: Any):
     """Normalize single scalar values (strings -> bool/int/float/None if possible)."""
     # Already correct types
     if v is None or isinstance(v, (bool, int, float)):
@@ -93,7 +116,7 @@ def _normalize_scalar(v: Any):
             return int(t)
         except Exception:
             # lastly try literal_eval for e.g. "'abc'" or numeric with extra
-            le = _try_literal_eval(t)
+            le = try_literal_eval(t)
             if not isinstance(le, str) or le != t:
                 return le
             return t  # keep as string
@@ -102,45 +125,45 @@ def _normalize_scalar(v: Any):
     return v
 
 
-def _normalize(obj: Any):
+def normalize(obj: Any):
     """
     Recursively normalize:
-      - dict -> {k: _normalize(v)}
-      - list -> [ _normalize_scalar(elem) ] (and flatten 2D single-col lists)
+      - dict -> {k: normalize(v)}
+      - list -> [ normalize_scalar(elem) ] (and flatten 2D single-col lists)
       - tuple -> tuple(...)
-      - str -> try _try_literal_eval then normalize result
+      - str -> try try_literal_eval then normalize result
     """
     # dict
     if isinstance(obj, dict):
-        return {k: _normalize(v) for k, v in obj.items()}
+        return {k: normalize(v) for k, v in obj.items()}
 
     # tuple
     if isinstance(obj, tuple):
-        return tuple(_normalize(x) for x in obj)
+        return tuple(normalize(x) for x in obj)
 
     # list (may be nested because xlwings passes ranges as 2D lists)
     if isinstance(obj, list):
         # flatten 2D single-column: [[a],[b],[c]] -> [a,b,c]
         if all(isinstance(i, list) and len(i) == 1 for i in obj):
             flat = [i[0] for i in obj]
-            return [_normalize_scalar(x) if not isinstance(x, (list, dict, tuple)) else _normalize(x) for x in flat]
+            return [normalize_scalar(x) if not isinstance(x, (list, dict, tuple)) else normalize(x) for x in flat]
         # flatten single-row 2D like [[a,b,c]] -> [a,b,c]
         if len(obj) == 1 and isinstance(obj[0], list):
-            return _normalize(obj[0])
+            return normalize(obj[0])
         # otherwise normalize each element
-        return [_normalize(x) for x in obj]
+        return [normalize(x) for x in obj]
 
     # string: try to literal_eval (could yield dict/list/tuple/bool/num)
     if isinstance(obj, str):
-        le = _try_literal_eval(obj)
+        le = try_literal_eval(obj)
         # If literal_eval returned something complex, normalize it
         if not isinstance(le, str):
-            return _normalize(le)
+            return normalize(le)
         # else try scalar normalization (numbers / true/false)
-        return _normalize_scalar(obj)
+        return normalize_scalar(obj)
 
     # scalar types (bool, int, float, None)
-    return _normalize_scalar(obj)
+    return normalize_scalar(obj)
 
 # ------------ main parser ------------
 
@@ -161,29 +184,29 @@ def parse_kwargs(kwargs_input) -> dict:
 
     # If the caller already passed a dict (e.g., via xl_dict), normalize it
     if isinstance(kwargs_input, dict):
-        return _normalize(kwargs_input)
+        return normalize(kwargs_input)
 
     # If it's bytes or other, try converting to str first
     if not isinstance(kwargs_input, (str, list, tuple, dict)):
         # fallback: try literal_eval on str(kwargs_input)
         try:
-            parsed = _try_literal_eval(str(kwargs_input))
+            parsed = try_literal_eval(str(kwargs_input))
             if isinstance(parsed, dict):
-                return _normalize(parsed)
+                return normalize(parsed)
             return {}
         except Exception:
             return {}
 
     # If it's a string, try parsing it as a Python-literal dict first
     if isinstance(kwargs_input, str):
-        parsed = _try_literal_eval(kwargs_input)
+        parsed = try_literal_eval(kwargs_input)
         if isinstance(parsed, dict):
-            return _normalize(parsed)
+            return normalize(parsed)
         # if literal_eval returned a different type, attempt to normalize that, but we need a dict
         if isinstance(parsed, (list, tuple)):
             # maybe user passed a list of pairs? convert pairs to dict if possible
             try:
-                return {k: _normalize(v) for k, v in parsed}
+                return {k: normalize(v) for k, v in parsed}
             except Exception:
                 return {}
         # else cannot convert to dict
@@ -196,7 +219,7 @@ def parse_kwargs(kwargs_input) -> dict:
         # case: [[k1,v1],[k2,v2]]
         if all(isinstance(x, (list, tuple)) and len(x) == 2 for x in kwargs_input):
             try:
-                return {str(x[0]): _normalize(x[1]) for x in kwargs_input}
+                return {str(x[0]): normalize(x[1]) for x in kwargs_input}
             except Exception:
                 pass
         # case: flat list ["k1","v1","k2","v2"]
@@ -205,7 +228,7 @@ def parse_kwargs(kwargs_input) -> dict:
                 items = list(kwargs_input)
                 d = {}
                 for i in range(0, len(items), 2):
-                    d[str(items[i])] = _normalize(items[i+1])
+                    d[str(items[i])] = normalize(items[i+1])
                 return d
             except Exception:
                 return {}
@@ -215,7 +238,7 @@ def parse_kwargs(kwargs_input) -> dict:
     return {}
 
 
-def _df_wrapper(df: pd.DataFrame, method: str, params: dict):
+def df_wrapper(df: pd.DataFrame, method: str, params: dict):
     try:
         if not hasattr(df, method):
             return f"DF error: Unsupported method '{method}'"

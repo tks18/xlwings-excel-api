@@ -3,14 +3,14 @@ import pandas as pd
 import xlwings as xw
 import io
 
-from helpers.pd import _auto_load, parse_kwargs, _auto_cache
+from helpers.pd import auto_load, parse_kwargs, auto_cache
 
 
 @xw.func
 def DF_HEAD(src_name: str, kwargs_in="{}"):
     """Return head of DF"""
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.head(**params)
     except Exception as e:
@@ -20,7 +20,7 @@ def DF_HEAD(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_TAIL(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.tail(**params)
     except Exception as e:
@@ -30,7 +30,7 @@ def DF_TAIL(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_INFO(src_name: str, as_table=True, kwargs_in=None):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
 
         # Keep only valid kwargs for DataFrame.info
@@ -54,7 +54,7 @@ def DF_INFO(src_name: str, as_table=True, kwargs_in=None):
 @xw.func
 def DF_DESCRIBE(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.describe(**params)
     except Exception as e:
@@ -82,7 +82,7 @@ def DF_GROUPBY(src_name: str, by, cols=None, funcs=None):
     DataFrame grouped and aggregated.
     """
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
 
         # Normalize grouping columns
         by_cols = [by] if isinstance(by, str) else list(x for x in by if x)
@@ -122,7 +122,7 @@ def DF_GROUPBY(src_name: str, by, cols=None, funcs=None):
 @xw.func
 def DF_SORT(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.sort_values(**params)
     except Exception as e:
@@ -132,7 +132,7 @@ def DF_SORT(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_QUERY(src_name: str, expr: str):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         return df.query(expr)
     except Exception as e:
         return f"DF_QUERY error: {e}"
@@ -141,7 +141,7 @@ def DF_QUERY(src_name: str, expr: str):
 @xw.func
 def DF_PIVOT(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.pivot_table(**params)
     except Exception as e:
@@ -151,7 +151,7 @@ def DF_PIVOT(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_DROP(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.drop(**params)
     except Exception as e:
@@ -161,7 +161,7 @@ def DF_DROP(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_FILLNA(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.fillna(**params)
     except Exception as e:
@@ -171,7 +171,7 @@ def DF_FILLNA(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_RENAME(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.rename(**params)
     except Exception as e:
@@ -181,7 +181,7 @@ def DF_RENAME(src_name: str, kwargs_in="{}"):
 @xw.func
 def DF_ASSIGN(src_name: str, kwargs_in="{}"):
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.assign(**params)
     except Exception as e:
@@ -195,7 +195,7 @@ def DF_VALUE_COUNTS(src_name: str, kwargs_in="{}"):
     Example: =DF_VALUE_COUNTS("sales_df","Region")
     """
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         params = parse_kwargs(kwargs_in)
         return df.value_counts(**params).reset_index(drop=True)
     except Exception as e:
@@ -207,7 +207,7 @@ def DF_VALUE_COUNTS(src_name: str, kwargs_in="{}"):
 def DF_RESET_INDEX(src_name: str, kwargs_in="{}"):
     try:
         params = parse_kwargs(kwargs_in)
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         return df.reset_index(**params)
     except Exception as e:
         return f"DF_STD_ASSIGN error: {e}"
@@ -218,7 +218,7 @@ def DF_STATS(src_name: str, mode: str, kwargs_in="{}"):
     """Compute covariance matrix."""
     try:
 
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
         if not hasattr(df, mode):
             return f"DF_STATS error: Unsupported type '{mode}'"
 
@@ -247,7 +247,7 @@ def DF_TO_DATETIME(src_name: str, cols, mutate=True, fmt=None):
     - If fmt is None, will try Excel serial dates first, then pandas auto parse
     """
     try:
-        df = _auto_load(src_name)
+        df = auto_load(src_name)
 
         # normalize columns
         col_list = [cols] if isinstance(
@@ -267,7 +267,7 @@ def DF_TO_DATETIME(src_name: str, cols, mutate=True, fmt=None):
                 else:
                     df[col] = pd.to_datetime(df[col], errors="coerce")
 
-        _auto_cache(src_name, df)
+        auto_cache(src_name, df)
 
         if mutate:
             return "Mutated the original DataFrame."
