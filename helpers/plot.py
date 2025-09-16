@@ -8,6 +8,9 @@ import matplotlib.pyplot as plt
 # Seaborn plotting UDFs (stateless)
 # -------------------------
 
+import matplotlib.pyplot as plt
+import seaborn as sns
+
 
 def insert_figure(fig, name="Figure"):
     try:

@@ -125,7 +125,7 @@ def normalize_scalar(v: Any):
     return v
 
 
-def normalize(obj: Any):
+def normalize(obj):
     """
     Recursively normalize:
       - dict -> {k: normalize(v)}
@@ -168,7 +168,7 @@ def normalize(obj: Any):
 # ------------ main parser ------------
 
 
-def parse_kwargs(kwargs_input) -> dict:
+def parse_kwargs(kwargs_input: Any) -> Any:
     """
     Parse and normalize kwargs passed from Excel UDFs.
 

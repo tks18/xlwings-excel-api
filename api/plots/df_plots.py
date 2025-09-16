@@ -3,7 +3,7 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
-from helpers.pd import auto_load, parse_kwargs, normalize
+from helpers.pd import auto_load, parse_kwargs
 from helpers.plot import plot_wrapper
 
 
