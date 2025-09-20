@@ -1,0 +1,5 @@
+"name","category","tags","description","version","path"
+"fx_TableKeepColumns","Table","[""table"", ""select"", ""performance"", ""dynamic""]","Keep only the specified columns from a table.","v1.0","C:\tools\projects\shan_xlwings_project\pq_manager\functions\table\fx_TableKeepColumns.pq"
+"fx_TableRemoveDuplicateRows","Table","[""table"", ""clean"", ""deduplicate"", ""performance""]","Remove duplicate rows based on all columns.","v1.0","C:\tools\projects\shan_xlwings_project\pq_manager\functions\table\fx_TableRemoveDuplicateRows.pq"
+"fx_TableRemoveNullCols","Table","[""table"", ""clean"", ""nulls"", ""performance"", ""metadata""]","Remove columns that contain only null values.","v2.0","C:\tools\projects\shan_xlwings_project\pq_manager\functions\table\fx_RemoveAllNulls.pq"
+"fx_TableSliceDynamic","Table","[""table"", ""slice"", ""dynamic"", ""performance""]","Slice a table from start to end row based on flexible search criteria.","v1.0","C:\tools\projects\shan_xlwings_project\pq_manager\functions\table\fx_GetTableSlice.pq"
