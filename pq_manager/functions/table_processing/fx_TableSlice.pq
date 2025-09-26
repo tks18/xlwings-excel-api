@@ -1,6 +1,6 @@
 ---
 name: fx_TableSlice
-category: Table
+category: Table Processing
 tags: [table, slice, dynamic, performance]
 description: "Slice a table from start to end row based on flexible search criteria (startCols/startValues/endCols/endValues), supports Exact/Contains and FirstFound/LastFound."
 version: "v2.0"

@@ -1,6 +1,6 @@
 ---
 name: fx_TableKeepColumns
-category: Table
+category: Table Processing
 tags: [table, select, performance, dynamic]
 description: "Keep only the specified columns from a table."
 version: "v1.0"

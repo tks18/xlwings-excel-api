@@ -1,6 +1,6 @@
 ---
 name: fx_TableRemoveNullCols
-category: Table
+category: Table Processing
 tags: [table, clean, nulls, performance, metadata]
 description: "Remove columns that contain only null values."
 version: "v2.0"

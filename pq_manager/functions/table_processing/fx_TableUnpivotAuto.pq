@@ -1,6 +1,6 @@
 ---
 name: fx_TableUnpivotAuto
-category: Table
+category: Table Processing
 tags: [table, unpivot, reshape, normalize]
 description: "Unpivot all non-key columns automatically."
 version: "v1.0"

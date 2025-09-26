@@ -1,6 +1,6 @@
 ---
 name: fx_LoadCsvDynamic
-category: Safe Loaders
+category: Table Loaders
 tags: [csv, dynamic, import, columns, table]
 description: "Load a CSV file with dynamic column handling and proper quote support."
 version: "v2.0"
@@ -44,8 +44,8 @@ let
     ) as table meta [
         Documentation.Name = "fx_LoadCsvDynamic",
         Documentation.LongDescription =
-            "Loads a CSV file with dynamic columns and proper quote handling.\n" &
-            "Automatically promotes headers if present.\n" &
+            "Loads a CSV file with dynamic columns and proper quote handling. " &
+            "Automatically promotes headers if present. " &
             "Supports custom delimiter and encoding."
     ],
 

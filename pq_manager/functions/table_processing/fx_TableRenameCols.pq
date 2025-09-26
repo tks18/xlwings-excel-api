@@ -1,15 +1,15 @@
 ---
 name: fx_TableRenameSequential
-category: Table
+category: Table Processing
 tags: [table, rename, columns, sequential]
-description: "Rename all columns sequentially as col_1, col_2, … col_n."
+description: "Rename all columns sequentially as col_1, col_2, ... col_n."
 version: "v1.0"
 ---
 let
     fx_TableRenameSequential =
         (sourceTable as table, optional prefix as text) as table =>
         let
-            // Use "Col " as default prefix if not provided
+            // Use "col_" as default prefix if not provided
             colPrefix = if prefix <> null then prefix else "col_",
 
             colNames = Table.ColumnNames(sourceTable),
@@ -34,7 +34,7 @@ let
         Documentation.Name = "fx_TableRenameSequential",
         Documentation.LongDescription =
             "This function renames all columns in the input table sequentially.\n" &
-            "By default, columns are renamed as 'Col 1', 'Col 2', … 'Col n'.\n" &
+            "By default, columns are renamed as 'Col 1', 'Col 2', ... 'Col n'.\n" &
             "Optionally, you can provide a custom prefix (e.g., 'Field ' → 'Field 1', 'Field 2', …)."
     ],
 

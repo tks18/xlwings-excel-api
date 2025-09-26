@@ -1,6 +1,6 @@
 ---
 name: fx_TableRemoveDuplicateRows
-category: Table
+category: Table Processing
 tags: [table, clean, deduplicate, performance]
 description: "Remove duplicate rows based on all columns."
 version: "v1.0"
