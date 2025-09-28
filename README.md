@@ -19,11 +19,6 @@ This project centralizes text, table, and data transformation utilities across *
   * Organized into categories (Text, Table, Regex, Loaders, etc.).
   * Auto-folder structure inside Excel (`_fx_queries`).
 
-* **Power BI Helper Functions**
-
-  * Reusable **DAX UDFs** for common calculations.
-  * Visual function library (experimental, D3.js custom visuals).
-
 * **Integration Workflows**
 
   * VBA macros to register & call Python UDFs.
@@ -60,7 +55,7 @@ This project centralizes text, table, and data transformation utilities across *
 ### Example: Slugify a String (Excel UDF)
 
 ```excel
-=pySlugify("Hello World!")
+=SLUG_BASIC("Hello World!")
 ```
 
 → `hello-world`
