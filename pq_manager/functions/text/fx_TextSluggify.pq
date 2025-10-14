@@ -16,7 +16,8 @@ let
             lower = Text.Lower(inputText),
 
             // Remove diacritics (accents) – normalize to ASCII
-            decomposed = Text.Normalize(lower, TextNormalization.FormD),
+            toBin = Text.ToBinary(lower, 28597),
+            decomposed = Text.FromBinary(toBin, TextEncoding.Ascii),
             asciiOnly = Text.Select(decomposed, List.Combine({{"a".."z"}, {"0".."9"}, {" "}})),
 
             // Replace spaces with delimiter
