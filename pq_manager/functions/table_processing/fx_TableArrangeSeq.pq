@@ -3,7 +3,7 @@ name: fx_TableArrangeByPattern
 category: Table Processing
 tags: [table, arrange, columns, order, pattern]
 description: "Arrange columns in numerical order based on a specified prefix pattern (e.g., 'Col_1', 'Col_2', ...)."
-version: "v1.0"
+version: "v1.1"
 ---
 let
     fx_TableArrangeByPattern =
@@ -13,37 +13,57 @@ let
             optional order as text
         ) as table =>
         let
-            // Default order is ascending
+            // normalize order
             sortOrder = if order <> null and Text.Upper(order) = "DESC" then "DESC" else "ASC",
 
-            // Get all column names
+            // all column names from source
             colNames = Table.ColumnNames(sourceTable),
 
-            // Filter columns matching the given pattern
+            // columns that start with the pattern
             matchingCols = List.Select(colNames, each Text.StartsWith(_, pattern)),
 
-            // Extract numeric part after the pattern (e.g., "Col_5" → 5)
-            colNumbers = List.Transform(matchingCols, each 
-                try Number.From(Text.AfterDelimiter(_, pattern)) 
-                otherwise null
-            ),
+            // helper: try extract number after pattern and convert to number, else null
+            extractNumber = (colName as text) as nullable number =>
+                let
+                    suffix = try Text.AfterDelimiter(colName, pattern) otherwise null,
+                    num = if suffix <> null then try Number.From(Text.Trim(suffix)) otherwise null else null
+                in
+                    num,
 
-            // Combine names and numbers for sorting
-            combined = List.Zip({matchingCols, colNumbers}),
+            // build list of {colName, number} for those that yielded a valid number
+            pairs =
+                List.Transform(
+                    matchingCols,
+                    each {_, extractNumber(_)}
+                ),
 
-            // Remove any null-numbered columns (safety)
-            filtered = List.Select(combined, each _{1} <> null),
+            // keep only pairs where number is not null (safe)
+            numericPairs = List.Select(pairs, each _{1} <> null),
 
-            // Sort by number ascending or descending
-            sorted = if sortOrder = "DESC" 
-                then List.Sort(filtered, Order.Descending, each _{1})
-                else List.Sort(filtered, Order.Ascending, each _{1}),
+            // sort numericPairs by the numeric value (ascending or descending)
+            sortedPairs =
+                if List.Count(numericPairs) = 0 then
+                    {}
+                else if sortOrder = "DESC" then
+                    List.Sort(numericPairs, (a, b) => if a{1} < b{1} then 1 else if a{1} > b{1} then -1 else 0)
+                else
+                    List.Sort(numericPairs, (a, b) => if a{1} < b{1} then -1 else if a{1} > b{1} then 1 else 0),
 
-            // Get sorted column names
-            sortedCols = List.Transform(sorted, each _{0}),
+            // extract sorted column names (in numeric order)
+            sortedMatchingColNames = List.Transform(sortedPairs, each _{0}),
 
-            // Reorder table columns
-            result = Table.ReorderColumns(sourceTable, sortedCols, MissingField.Ignore)
+            // preserve original-order non-matching columns (columns that weren't in sortedMatchingColNames)
+            nonMatchingCols = List.Select(colNames, each not List.Contains(sortedMatchingColNames, _)),
+
+            // final column order: sorted matching columns first, then the non-matching columns (preserves their original order)
+            finalColumnOrder = List.Combine({sortedMatchingColNames, nonMatchingCols}),
+
+            // if no numeric matches found, return source table as-is
+            result =
+                if List.Count(sortedMatchingColNames) = 0 then
+                    sourceTable
+                else
+                    Table.ReorderColumns(sourceTable, finalColumnOrder, MissingField.Ignore)
         in
             result,
 
@@ -64,8 +84,8 @@ let
         Documentation.Name = "fx_TableArrangeByPattern",
         Documentation.LongDescription =
             "This function arranges table columns numerically based on the numeric suffix extracted after a given pattern.\n" &
-            "For example, with pattern 'Col_', columns ['Col_1', 'Col_3', 'Col_2'] will be reordered as ['Col_1', 'Col_2', 'Col_3'].\n" &
-            "Optionally specify order = 'DESC' for descending sort."
+            "Example: pattern 'Col_' will reorder ['Col_3','Col_1','Col_2','Name'] to ['Col_1','Col_2','Col_3','Name'] when order='ASC'.\n" &
+            "Non-matching columns (or columns with non-numeric suffixes) are appended after the sorted matching columns in their original order."
     ],
 
     fx = Value.ReplaceType(fx_TableArrangeByPattern, fx_type)
