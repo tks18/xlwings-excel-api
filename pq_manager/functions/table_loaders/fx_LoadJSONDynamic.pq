@@ -1,6 +1,6 @@
 ---
 name: fx_LoadJSONDynamic
-category: JSON
+category: Table Loaders
 tags: [json, expand, flatten, file, binary, dynamic]
 description: "Load a JSON file (from file path or binary), parse, and recursively expand all nested objects and arrays into a flat table. Allows custom delimiter for nested column names."
 version: "v1.1"

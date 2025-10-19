@@ -3,6 +3,7 @@ import os
 import csv
 import json
 import yaml
+import pyperclip
 import xlwings as xw
 
 # Default names (you can override by passing root arg)
@@ -125,17 +126,6 @@ def insert_pq(name, root):
     excel = app.api
     active_wb = excel.ActiveWorkbook
 
-    # Ensure folder exists (create if not)
-    def get_or_create_group(group_name, parent_group=None):
-        groups = active_wb.Queries.Groups
-        for grp in groups:
-            if grp.Name == group_name and (parent_group is None or grp.Parent.Name == parent_group.Name):
-                return grp
-        if parent_group:
-            return groups.Add(group_name, parent_group)
-        else:
-            return groups.Add(group_name)
-
     # remove existing query(s) with same name (if any)
     try:
         queries = active_wb.Queries
@@ -156,6 +146,37 @@ def insert_pq(name, root):
     try:
         active_wb.Queries.Add(Name=name, Formula=m_code,
                               Description=parsed["description"])
+    except Exception as e:
+        raise RuntimeError(f"Failed to add Query in Excel: {e}")
+    return {"status": "ok", "name": name}
+
+
+def copy_pq_function(name, root):
+    """
+    Copy the PQ Function into Clipboard, 
+    Makes it easy to paste in power bi power query editor 
+    since it doesnt give any direct interface to insert
+    """
+    root = os.path.abspath(root)
+    index = read_index(root)
+    match = next((x for x in index if x["name"] == name), None)
+    if not match:
+        raise FileNotFoundError(f"{name} not found in index at {root}")
+    pq_path = match["path"]
+    if not os.path.exists(pq_path):
+        raise FileNotFoundError(pq_path)
+    parsed = parse_pq_file(pq_path)
+    m_code = parsed["body"]
+    name = parsed["name"]
+
+    func_to_copy = f"""
+    // {name}
+    {m_code}
+    """
+
+    # Copy query
+    try:
+        pyperclip.copy(func_to_copy.strip())
     except Exception as e:
         raise RuntimeError(f"Failed to add Query in Excel: {e}")
     return {"status": "ok", "name": name}
