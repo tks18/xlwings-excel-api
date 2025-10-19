@@ -1,12 +1,12 @@
 ---
-name: fx_JSONLoadAndExpand
+name: fx_LoadJSONDynamic
 category: JSON
 tags: [json, expand, flatten, file, binary, dynamic]
 description: "Load a JSON file (from file path or binary), parse, and recursively expand all nested objects and arrays into a flat table. Allows custom delimiter for nested column names."
 version: "v1.1"
 ---
 let
-    fx_JSONLoadAndExpand =
+    fx_LoadJSONDynamic =
         (jsonInput as any, optional delimiter as text) as table =>
         let
             // Step 1: Set delimiter (default ".")
@@ -83,12 +83,12 @@ let
             Documentation.FieldDescription = "String used to join nested column names (default is '.')."
         ])
     ) as table meta [
-        Documentation.Name = "fx_JSONLoadAndExpand",
+        Documentation.Name = "fx_LoadJSONDynamic",
         Documentation.LongDescription = 
             "Loads a JSON file or binary input, parses it into a JSON object, and recursively expands all nested records and lists into a flat table. " &
             "Nested column names are prefixed using Parent{delimiter}Child notation."
     ],
 
-    fx = Value.ReplaceType(fx_JSONLoadAndExpand, fx_type)
+    fx = Value.ReplaceType(fx_LoadJSONDynamic, fx_type)
 in
     fx
