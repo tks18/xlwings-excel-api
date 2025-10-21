@@ -9,9 +9,10 @@ let
     fx_TableRemoveNullCols = 
         (sourceTable as table) as table =>
         let
+            cols = Table.ColumnNames(sourceTable),
             profile = Table.FromRecords(Table.ToRecords(Table.Profile(sourceTable))),
             nonEmpty = Table.SelectRows(profile, each [NullCount] <> [Count])[Column],
-            result = Table.SelectColumns(sourceTable, nonEmpty)
+            result = Table.SelectColumns(sourceTable, List.Intersect({ cols, nonEmpty }))
         in
             result,
 
