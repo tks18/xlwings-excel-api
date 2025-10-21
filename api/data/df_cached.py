@@ -2,6 +2,7 @@ from operator import index
 import pandas as pd
 import xlwings as xw
 import io
+from typing import Union, List, Mapping, cast, Callable
 
 from helpers.pd import auto_load, parse_kwargs, auto_cache
 
@@ -103,8 +104,9 @@ def DF_GROUPBY(src_name: str, by, cols=None, funcs=None):
         else:
             agg_funcs = [f for f in funcs if f]
 
-        # Build aggregation mapping
-        agg_dict = {col: agg_funcs for col in agg_cols}
+         # Build aggregation mapping
+        agg_dict = cast(Mapping[str, Union[str, Callable, List[Union[str, Callable]]]], {
+                        col: agg_funcs for col in agg_cols})
 
         result = df.groupby(by_cols).agg(agg_dict)
 

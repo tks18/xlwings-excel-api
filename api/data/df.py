@@ -1,6 +1,7 @@
 import pandas as pd
 import xlwings as xw
 import io
+from typing import Union, List, Mapping, cast, Callable
 
 from helpers.pd import parse_kwargs
 
@@ -98,7 +99,8 @@ def DF_STD_GROUPBY(df: pd.DataFrame, by, cols=None, funcs=None):
             agg_funcs = [f for f in funcs if f]
 
         # Build aggregation mapping
-        agg_dict = {col: agg_funcs for col in agg_cols}
+        agg_dict = cast(Mapping[str, Union[str, Callable, List[Union[str, Callable]]]], {
+                        col: agg_funcs for col in agg_cols})
 
         result = df.groupby(by_cols).agg(agg_dict).reset_index(drop=True)
 
@@ -209,10 +211,18 @@ def DF_STD_STATS(df: pd.DataFrame, mode: str, kwargs_in="{}"):
         func = getattr(df, mode)
 
         params = parse_kwargs(kwargs_in)
+        with_index = False
+        if "with_index" in params:
+            with_index = params.pop("with_index")
+
         result = func(**params)
-        return result.reset_index(drop=True)
+
+        if with_index:
+            return result.reset_index()
+        else:
+            return result
     except Exception as e:
-        return f"DF_STD_STATS error: {e}"
+        return f"DF_STATS error: {e}"
 
 
 @xw.func
