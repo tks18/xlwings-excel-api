@@ -88,10 +88,6 @@ def copy_pq_function(name, root):
     return {"status": "ok", "name": name}
 
 
-# Global variable to track running threads
-_ui_thread = None
-
-
 def open_pq_function_selector(root_path: str):
     """
     Enhanced Power Query Function Selector:
