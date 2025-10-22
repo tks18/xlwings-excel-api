@@ -40,7 +40,7 @@ let
             // Step 4: Extract data
             output =
                 if Table.RowCount(filteredItem) = 0 then
-                    error Text.Format("No item found with name '#(1)' of type '#(2)'", {itemName, sourceType})
+                    error Text.Format("No item found with name of type")
                 else
                     filteredItem{0}[Data]
         in
