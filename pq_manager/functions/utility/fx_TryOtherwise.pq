@@ -33,11 +33,7 @@ let
         Documentation.LongDescription =
             "This function wraps another function with built-in error handling.\n" &
             "If the operation succeeds, it returns the result.\n" &
-            "If an error occurs, it returns the provided fallback value (or null if not provided).\n\n" &
-            "Examples:\n" &
-            "• fx_TryOtherwise(Number.FromText, \"123\", -1) → 123\n" &
-            "• fx_TryOtherwise(Number.FromText, \"abc\", -1) → -1\n" &
-            "• fx_TryOtherwise(Text.Length, null, 0) → 0"
+            "If an error occurs, it returns the provided fallback value (or null if not provided).\n\n"
     ],
 
     fx = Value.ReplaceType(fx_TryOtherwise, fx_type)
