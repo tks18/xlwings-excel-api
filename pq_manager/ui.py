@@ -1,3 +1,5 @@
+import csv
+import json
 import os
 import threading
 import tkinter as tk
@@ -5,8 +7,11 @@ from tkinter import ttk, messagebox
 import pandas as pd
 import xlwings as xw
 import customtkinter as ctk
+import yaml
+import sys
 
-from pq_manager.helpers import parse_pq_file, build_index, INDEX_FILENAME
+INDEX_FILENAME = "index.csv"
+LOCK_FILE = os.path.join(os.path.dirname(__file__), "ui.lock")
 
 
 class PQManagerUI:
@@ -62,6 +67,7 @@ class PQManagerUI:
 
         # initial populate
         self.populate_tree()
+        self.root.protocol("WM_DELETE_WINDOW", self._on_close)
         self.start_ui()
 
     def start_ui(self):
@@ -296,10 +302,84 @@ class PQManagerUI:
         threading.Thread(target=self.insert_selected_functions, kwargs={
                          "single_only": single_only}, daemon=True).start()
 
+    def _safe_str(self, x):
+        if x is None:
+            return ""
+        return str(x).replace('\r', ' ').replace('\n', ' ').strip()
+
+    def _on_close(self):
+        try:
+            if os.path.exists(LOCK_FILE):
+                os.remove(LOCK_FILE)
+        except Exception:
+            pass
+        self.root.destroy()
+
+    def parse_pq_file(self, path):
+        with open(path, "r", encoding="utf-8") as fh:
+            text = fh.read()
+        fm = {}
+        body = text
+        if text.lstrip().startswith("---"):
+            parts = text.split("---", 2)
+            if len(parts) >= 3:
+                try:
+                    fm = yaml.safe_load(parts[1]) or {}
+                except Exception:
+                    fm = {}
+                body = parts[2].lstrip("\n")
+        name = self._safe_str(fm.get("name") or os.path.splitext(
+            os.path.basename(path))[0])
+        category = self._safe_str(fm.get("category") or "Uncategorized")
+        tags = fm.get("tags") or []
+        description = self._safe_str(fm.get("description") or "")
+        version = self._safe_str(fm.get("version") or "")
+        return {
+            "name": name,
+            "category": category,
+            "tags": tags,
+            "description": description.replace("\n", " ").replace("\r", " "),
+            "version": version,
+            "path": os.path.abspath(path),
+            "body": body
+        }
+
+    def build_index(self):
+        """
+        Walk `root` and write index.csv into that folder.
+        Columns: name,category,tags,description,version,path
+        """
+        root = os.path.abspath(self.root_path)
+        rows = []
+        for dirpath, _, files in os.walk(root):
+            for fn in files:
+                if fn.lower().endswith(".pq"):
+                    p = os.path.join(dirpath, fn)
+                    try:
+                        parsed = self.parse_pq_file(p)
+                        rows.append(parsed)
+                    except Exception as e:
+                        # skip problematic file but print for debug
+                        print(f"Failed to parse {p}: {e}")
+        # sort
+        rows = sorted(rows, key=lambda r: (
+            r["category"].lower(), r["name"].lower()))
+        index_path = os.path.join(root, INDEX_FILENAME)
+        with open(index_path, "w", newline="", encoding="utf-8") as fh:
+            writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
+            # header
+            writer.writerow(["name", "category", "tags",
+                            "description", "version", "path"])
+            for r in rows:
+                # write tags as JSON string (safe within quoted CSV)
+                writer.writerow([r["name"], r["category"], json.dumps(
+                    r["tags"], ensure_ascii=False), r["description"], r["version"], r["path"]])
+        return index_path
+
     def refresh_ui(self):
         """Rebuilds all widgets and reloads the interface"""
-        self.root.destroy()
-        build_index(self.root_path)
+        self._on_close()
+        self.build_index()
         self.__init__(self.root_path)
 
     def insert_selected_functions(self, single_only=False):
@@ -331,7 +411,7 @@ class PQManagerUI:
                     continue
                 row = matches.iloc[0]
                 func_path = row["path"]
-                parsed = parse_pq_file(func_path)
+                parsed = self.parse_pq_file(func_path)
                 m_code = parsed.get("body", "")
                 try:
                     queries = active_wb.Queries
@@ -363,3 +443,8 @@ class PQManagerUI:
                         ) if summary else "Errors:\n" + "\n".join(errors)
         self.root.after(0, lambda: messagebox.showinfo(
             "Done", summary) if inserted else messagebox.showerror("Failed", summary))
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        PQManagerUI(sys.argv[1])
