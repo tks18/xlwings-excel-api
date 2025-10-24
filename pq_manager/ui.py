@@ -1,14 +1,11 @@
-import csv
-import json
 import os
 import threading
 import tkinter as tk
 from tkinter import ttk, messagebox
-import pandas as pd
-import xlwings as xw
 import customtkinter as ctk
-import yaml
 import sys
+
+from xl_pq_handler import XLPowerQueryHandler
 
 INDEX_FILENAME = "index.csv"
 LOCK_FILE = os.path.join(os.path.dirname(__file__), "ui.lock")
@@ -21,10 +18,11 @@ class PQManagerUI:
 
         self.root_path = root_path
         self.csv_path = os.path.join(root_path, INDEX_FILENAME)
+        self.pq_handler = XLPowerQueryHandler(root_path, INDEX_FILENAME)
 
         # Load CSV
         try:
-            self.df = pd.read_csv(self.csv_path)
+            self.df = self.pq_handler.index_to_dataframe()
         except Exception as e:
             messagebox.showerror("Error", f"Failed to load CSV:\n{e}")
             return
@@ -315,71 +313,10 @@ class PQManagerUI:
             pass
         self.root.destroy()
 
-    def parse_pq_file(self, path):
-        with open(path, "r", encoding="utf-8") as fh:
-            text = fh.read()
-        fm = {}
-        body = text
-        if text.lstrip().startswith("---"):
-            parts = text.split("---", 2)
-            if len(parts) >= 3:
-                try:
-                    fm = yaml.safe_load(parts[1]) or {}
-                except Exception:
-                    fm = {}
-                body = parts[2].lstrip("\n")
-        name = self._safe_str(fm.get("name") or os.path.splitext(
-            os.path.basename(path))[0])
-        category = self._safe_str(fm.get("category") or "Uncategorized")
-        tags = fm.get("tags") or []
-        description = self._safe_str(fm.get("description") or "")
-        version = self._safe_str(fm.get("version") or "")
-        return {
-            "name": name,
-            "category": category,
-            "tags": tags,
-            "description": description.replace("\n", " ").replace("\r", " "),
-            "version": version,
-            "path": os.path.abspath(path),
-            "body": body
-        }
-
-    def build_index(self):
-        """
-        Walk `root` and write index.csv into that folder.
-        Columns: name,category,tags,description,version,path
-        """
-        root = os.path.abspath(self.root_path)
-        rows = []
-        for dirpath, _, files in os.walk(root):
-            for fn in files:
-                if fn.lower().endswith(".pq"):
-                    p = os.path.join(dirpath, fn)
-                    try:
-                        parsed = self.parse_pq_file(p)
-                        rows.append(parsed)
-                    except Exception as e:
-                        # skip problematic file but print for debug
-                        print(f"Failed to parse {p}: {e}")
-        # sort
-        rows = sorted(rows, key=lambda r: (
-            r["category"].lower(), r["name"].lower()))
-        index_path = os.path.join(root, INDEX_FILENAME)
-        with open(index_path, "w", newline="", encoding="utf-8") as fh:
-            writer = csv.writer(fh, quoting=csv.QUOTE_ALL)
-            # header
-            writer.writerow(["name", "category", "tags",
-                            "description", "version", "path"])
-            for r in rows:
-                # write tags as JSON string (safe within quoted CSV)
-                writer.writerow([r["name"], r["category"], json.dumps(
-                    r["tags"], ensure_ascii=False), r["description"], r["version"], r["path"]])
-        return index_path
-
     def refresh_ui(self):
         """Rebuilds all widgets and reloads the interface"""
         self._on_close()
-        self.build_index()
+        self.pq_handler.build_index()
         self.__init__(self.root_path)
 
     def insert_selected_functions(self, single_only=False):
@@ -390,57 +327,11 @@ class PQManagerUI:
             return
         if single_only:
             sels = (sels[0],)
-        try:
-            app = xw.apps.active
-        except:
-            app = None
-        if app is None:
-            messagebox.showerror(
-                "Excel Not Found", "No active Excel instance.")
-            return
-        excel = app.api
-        active_wb = excel.ActiveWorkbook
-        inserted, errors = [], []
-        for iid in sels:
-            try:
-                vals = self.tree.item(iid, "values")
-                func_name = vals[0]
-                matches = self.df[self.df["name"] == func_name]
-                if matches.empty:
-                    errors.append(f"{func_name}: path not found")
-                    continue
-                row = matches.iloc[0]
-                func_path = row["path"]
-                parsed = self.parse_pq_file(func_path)
-                m_code = parsed.get("body", "")
-                try:
-                    queries = active_wb.Queries
-                    i = queries.Count
-                    while i >= 1:
-                        try:
-                            q = queries.Item(i)
-                            if q.Name == func_name:
-                                q.Delete()
-                        except:
-                            pass
-                        finally:
-                            i -= 1
-                except:
-                    pass
-                try:
-                    active_wb.Queries.Add(
-                        Name=func_name, Formula=m_code, Description=parsed.get("description", ""))
-                    inserted.append(func_name)
-                except Exception as e:
-                    errors.append(f"{func_name}: Failed to add Query - {e}")
-            except Exception as e:
-                errors.append(f"unknown: {e}")
+        _, inserted = self.pq_handler.insert_pqs_batch(list(sels))
+
         summary = ""
         if inserted:
             summary += "Inserted:\n" + "\n".join(inserted)
-        if errors:
-            summary += ("\n\nErrors:\n" + "\n".join(errors)
-                        ) if summary else "Errors:\n" + "\n".join(errors)
         self.root.after(0, lambda: messagebox.showinfo(
             "Done", summary) if inserted else messagebox.showerror("Failed", summary))
 
