@@ -925,7 +925,7 @@ requires-dist = [
     { name = "scipy", specifier = ">=1.16.1" },
     { name = "seaborn", specifier = ">=0.13.2" },
     { name = "selenium", specifier = ">=4.35.0" },
-    { name = "xl-pq-handler", specifier = ">=1.0.3" },
+    { name = "xl-pq-handler", specifier = ">=1.0.4" },
     { name = "xlwings", specifier = ">=0.33.15" },
 ]
 
@@ -1060,7 +1060,7 @@ wheels = [
 
 [[package]]
 name = "xl-pq-handler"
-version = "1.0.3"
+version = "1.0.4"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "pandas" },
@@ -1068,9 +1068,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "xlwings" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/e8/13/dd621591ec4ed44f80c3b1095495075db7c5b97c540ccca1cee668219a5c/xl_pq_handler-1.0.3.tar.gz", hash = "sha256:cf85e4c1f6cf44a45871efa3b861dfaf22d35af0ea4d4e6fe0f542cca5dd68b0", size = 6861, upload-time = "2025-10-24T16:13:24.427Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/1b/75/6b8d5fdb5d29e9035ca54f3a5091896cf6c6ed466186ec8adf57c26a4449/xl_pq_handler-1.0.4.tar.gz", hash = "sha256:b507adefd3f3d6d6eba7561739f7ab877219db19f0990c9880819c0b1dd4fcd8", size = 6861, upload-time = "2025-10-24T16:37:10.034Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/99/18/01e379f6b4220fdbf6e8d30916f37a8b2555286a30f4ea5cc9b2ebc2ed40/xl_pq_handler-1.0.3-py3-none-any.whl", hash = "sha256:ced9697f2f227a6c41520a869d44dc4453101d0bdc8b19c106fe0c743f7ecd2d", size = 7995, upload-time = "2025-10-24T16:13:23.382Z" },
+    { url = "https://files.pythonhosted.org/packages/73/da/100a9332e3af7ec902f71c7acb250eba734e32d2087ec367b3645c959f88/xl_pq_handler-1.0.4-py3-none-any.whl", hash = "sha256:07cdc105eb258e1e26d98a0fb655ae187e4c3c89fd0f87fddfbfc67530f49fb6", size = 7996, upload-time = "2025-10-24T16:37:09.067Z" },
 ]
 
 [[package]]

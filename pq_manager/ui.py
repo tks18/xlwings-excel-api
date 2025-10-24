@@ -300,11 +300,6 @@ class PQManagerUI:
         threading.Thread(target=self.insert_selected_functions, kwargs={
                          "single_only": single_only}, daemon=True).start()
 
-    def _safe_str(self, x):
-        if x is None:
-            return ""
-        return str(x).replace('\r', ' ').replace('\n', ' ').strip()
-
     def _on_close(self):
         try:
             if os.path.exists(LOCK_FILE):
@@ -321,19 +316,16 @@ class PQManagerUI:
 
     def insert_selected_functions(self, single_only=False):
         sels = self.tree.selection()
+        values = [self.tree.item(iid, "values")[0] for iid in sels]
         if not sels:
             messagebox.showwarning(
                 "No selection", "Please select functions to insert.")
             return
-        if single_only:
-            sels = (sels[0],)
-        _, inserted = self.pq_handler.insert_pqs_batch(list(sels))
+        self.pq_handler.insert_pqs_batch(values)
 
-        summary = ""
-        if inserted:
-            summary += "Inserted:\n" + "\n".join(inserted)
+        summary = "Inserted:\n" + "\n".join(values)
         self.root.after(0, lambda: messagebox.showinfo(
-            "Done", summary) if inserted else messagebox.showerror("Failed", summary))
+            "Done", summary))
 
 
 if __name__ == "__main__":

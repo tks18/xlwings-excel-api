@@ -21,6 +21,6 @@ dependencies = [
     "scipy>=1.16.1",
     "seaborn>=0.13.2",
     "selenium>=4.35.0",
-    "xl-pq-handler>=1.0.3",
+    "xl-pq-handler>=1.0.4",
     "xlwings>=0.33.15",
 ]
