@@ -1,0 +1,225 @@
+[
+  {
+    "name": "fx_LoadCsvDynamic",
+    "category": "Table Loaders",
+    "tags": [
+      "csv",
+      "dynamic",
+      "import",
+      "columns",
+      "table"
+    ],
+    "dependencies": [],
+    "description": "Load a CSV file with dynamic column handling and proper quote support.",
+    "version": "v2.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_loaders\\fx_LoadCSVDynamic.pq"
+  },
+  {
+    "name": "fx_LoadExcelDynamic",
+    "category": "Table Loaders",
+    "tags": [
+      "excel",
+      "sheet",
+      "table",
+      "import",
+      "dynamic",
+      "flexible"
+    ],
+    "dependencies": [],
+    "description": "Load a sheet or table from an Excel file, binary, or already-loaded workbook.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_loaders\\fx_LoadExcelDynamic.pq"
+  },
+  {
+    "name": "fx_LoadJSONDynamic",
+    "category": "Table Loaders",
+    "tags": [
+      "json",
+      "expand",
+      "flatten",
+      "file",
+      "binary",
+      "dynamic"
+    ],
+    "dependencies": [],
+    "description": "Load a JSON file (from file path or binary), parse, and recursively expand all nested objects and arrays into a flat table. Allows custom delimiter for nested column names.",
+    "version": "v1.1",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_loaders\\fx_LoadJSONDynamic.pq"
+  },
+  {
+    "name": "fx_LoadPDFDynamic",
+    "category": "Table Loaders",
+    "tags": [
+      "pdf",
+      "dynamic",
+      "import",
+      "columns",
+      "table"
+    ],
+    "dependencies": [],
+    "description": "Load all pages of a PDF file into a single flattened table by expanding a configurable number of dynamic columns otherwise 100 and removing empty ones.",
+    "version": "v2.1",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_loaders\\fx_LoadPDFDynamic.pq"
+  },
+  {
+    "name": "fx_TableAddColsDynamic",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "addcolumn",
+      "dynamic",
+      "record",
+      "automation"
+    ],
+    "dependencies": [],
+    "description": "Add multiple columns to a table dynamically based on a list of records defining name, type, and function.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableAddColsDynamic.pq"
+  },
+  {
+    "name": "fx_TableArrangeByPattern",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "arrange",
+      "columns",
+      "order",
+      "pattern"
+    ],
+    "dependencies": [],
+    "description": "Arrange columns in numerical order based on a specified prefix pattern (e.g., 'Col_1', 'Col_2', ...).",
+    "version": "v1.1",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableArrangeSeq.pq"
+  },
+  {
+    "name": "fx_TableKeepColumns",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "select",
+      "performance",
+      "dynamic"
+    ],
+    "dependencies": [],
+    "description": "Keep only the specified columns from a table.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableKeepColumns.pq"
+  },
+  {
+    "name": "fx_TableRemoveDuplicateRows",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "clean",
+      "deduplicate",
+      "performance"
+    ],
+    "dependencies": [],
+    "description": "Remove duplicate rows based on all columns.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableRemoveDuplicateRows.pq"
+  },
+  {
+    "name": "fx_TableRemoveNullCols",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "clean",
+      "nulls",
+      "performance",
+      "metadata"
+    ],
+    "dependencies": [],
+    "description": "Remove columns that contain only null values.",
+    "version": "v2.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableRemoveNullCols.pq"
+  },
+  {
+    "name": "fx_TableRenameSequential",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "rename",
+      "columns",
+      "sequential"
+    ],
+    "dependencies": [],
+    "description": "Rename all columns sequentially as col_1, col_2, ... col_n.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableRenameCols.pq"
+  },
+  {
+    "name": "fx_TableSlice",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "slice",
+      "dynamic",
+      "performance"
+    ],
+    "dependencies": [],
+    "description": "Slice a table from start to end row based on flexible search criteria (startCols/startValues/endCols/endValues), supports Exact/Contains and FirstFound/LastFound.",
+    "version": "v2.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableSlice.pq"
+  },
+  {
+    "name": "fx_TableUnpivotAuto",
+    "category": "Table Processing",
+    "tags": [
+      "table",
+      "unpivot",
+      "reshape",
+      "normalize",
+      "autodetect"
+    ],
+    "dependencies": [],
+    "description": "Unpivot selected data type columns automatically (defaults to numeric types).",
+    "version": "v2.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\table_processing\\fx_TableUnpivotAuto.pq"
+  },
+  {
+    "name": "fx_TextSlugify",
+    "category": "Text",
+    "tags": [
+      "text",
+      "slug",
+      "clean",
+      "url",
+      "normalize"
+    ],
+    "dependencies": [],
+    "description": "Convert input text into a URL-friendly slug.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\text\\fx_TextSluggify.pq"
+  },
+  {
+    "name": "fx_CreateColRecord",
+    "category": "Utility",
+    "tags": [
+      "record",
+      "column",
+      "dynamic",
+      "addcolumn",
+      "metadata"
+    ],
+    "dependencies": [],
+    "description": "Creates a record defining a column with Name, Type, and Function fields for dynamic table transformations.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\utility\\fx_CreateColRecord.pq"
+  },
+  {
+    "name": "fx_TryOtherwise",
+    "category": "Utility",
+    "tags": [
+      "error-handling",
+      "safety",
+      "try",
+      "otherwise",
+      "fallback"
+    ],
+    "dependencies": [],
+    "description": "Safely executes a function with given input. Returns fallback value if an error occurs.",
+    "version": "v1.0",
+    "path": "D:\\Python Projects\\xlwings_excel_api\\pq_manager\\functions\\utility\\fx_TryOtherwise.pq"
+  }
+]
