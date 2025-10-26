@@ -129,3 +129,4 @@ tests/rest/request-bodies
 _df_cache/*
 ~*
 ui.lock
+index.json
