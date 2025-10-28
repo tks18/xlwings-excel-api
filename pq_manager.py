@@ -9,9 +9,8 @@ import pyperclip
 import win32process
 import json
 
-from xl_pq_handler import PQManager, PQManagerUI
+from xl_pq_handler import PQManager
 
-# Default names
 PACKAGE_NAME = "xl_pq_handler"
 
 
@@ -56,8 +55,7 @@ def copy_pq_function(name, root):
 
 def open_pq_function_selector(root_path: str):
     """
-    Launches the Power Query Function Selector UI (ui.py) in a separate
-    process so Excel remains usable while the CTk window is open.
+    Launches the new xl_pq_handler UI window.
     - If the UI is already open, brings it to front.
     """
     lock_file = os.path.join(root_path, "ui.lock")
