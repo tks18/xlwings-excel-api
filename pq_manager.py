@@ -14,33 +14,33 @@ from xl_pq_handler import PQManager
 PACKAGE_NAME = "xl_pq_handler"
 
 
-def insert_pq(name: str, root: str) -> str:
+def insert_pq(name: str, root: str, hwnd: int) -> str:
     """
     Inserts a single PQ (and its dependencies) into the active workbook.
     """
     try:
-        handler = PQManager(root)
+        handler = PQManager(root, hwnd)
         result = handler.insert_into_excel([name])
         return json.dumps(result)
     except Exception as e:
         return json.dumps({"status": "error", "message": str(e)})
 
 
-def build_index(root: str) -> str:
+def build_index(root: str, hwnd: int) -> str:
     """
     Rebuilds the index.
     """
     try:
-        handler = PQManager(root)
+        handler = PQManager(root, hwnd)
         handler.build_index()
         return json.dumps({"status": "ok", "message": "Index rebuilt successfully."})
     except Exception as e:
         return json.dumps({"status": "error", "message": str(e)})
 
 
-def copy_pq_function(name, root):
+def copy_pq_function(name, root, hwnd):
     print(name, root)
-    handler = PQManager(root)
+    handler = PQManager(root, hwnd)
     try:
         pq_data = handler.get_script(name)
         if pq_data:
@@ -53,7 +53,7 @@ def copy_pq_function(name, root):
         return json.dumps({"status": "error", "message": str(e)})
 
 
-def open_pq_function_selector(root_path: str):
+def open_pq_function_selector(root_path: str, xl_hwnd: int):
     """
     Launches the new xl_pq_handler UI window.
     - If the UI is already open, brings it to front.
@@ -91,23 +91,23 @@ def open_pq_function_selector(root_path: str):
                 # If lock file is stale or unreadable, just continue to launch
                 pass
 
-        # --- FIX: Build a command-line string to handle spaces ---
         # 1. Create the argument list
         cmd_list = [
             sys.executable,
             "-m", PACKAGE_NAME,
-            root_path
+            root_path,
+            str(xl_hwnd)
         ]
 
+        # 2. Create the command string
         cmd_string = subprocess.list2cmdline(cmd_list)
 
-        # 3. Pass the string to Popen (this is robust on Windows)
+        # 3. Pass the string to Popen
         proc = subprocess.Popen(
             cmd_string,
             creationflags=subprocess.CREATE_NO_WINDOW,
             close_fds=True
         )
-        # --- End Fix ---
 
         with open(lock_file, "w") as f:
             f.write(str(proc.pid))

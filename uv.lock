@@ -1156,7 +1156,7 @@ wheels = [
 
 [[package]]
 name = "xl-pq-handler"
-version = "2.3.1"
+version = "2.3.2"
 source = { registry = "https://pypi.org/simple" }
 dependencies = [
     { name = "customtkinter" },
@@ -1166,9 +1166,9 @@ dependencies = [
     { name = "pyyaml" },
     { name = "xlwings" },
 ]
-sdist = { url = "https://files.pythonhosted.org/packages/9a/d9/39ed33d0961f35147e0a05e8731c124b5472b18d84a87001901add053949/xl_pq_handler-2.3.1.tar.gz", hash = "sha256:e7decada1f3ebe29bc5e2d1ca4db90e5afd7a7ee1807abb61f4144da6c9cc452", size = 37213, upload-time = "2025-10-28T14:24:26.707Z" }
+sdist = { url = "https://files.pythonhosted.org/packages/96/ca/1d4fcddb1fbfb665c6ca2ae5fd9d1e3d2440fed604d399e7766d5402d293/xl_pq_handler-2.3.2.tar.gz", hash = "sha256:6755fb72c5a8c822efc4506934a494a06044e502183cb52dd292bd69b27e0773", size = 37501, upload-time = "2025-10-29T05:45:13.594Z" }
 wheels = [
-    { url = "https://files.pythonhosted.org/packages/c7/88/e7910316243521a4b1bdb83d41b22c5353dad3d44fe0f01adb020990a6a4/xl_pq_handler-2.3.1-py3-none-any.whl", hash = "sha256:332cacd77bac0275b12179df3a2e07dfeaf57b4215ce13f9ce82b66b5d571456", size = 54238, upload-time = "2025-10-28T14:24:25.705Z" },
+    { url = "https://files.pythonhosted.org/packages/0f/de/019cedd55d37b47def419ef922e020d150dafb93f900793bca14ebf0550d/xl_pq_handler-2.3.2-py3-none-any.whl", hash = "sha256:42582146dac381e47f32b491b09041e0e7984a30f108d070c0e70b8a36033b8d", size = 54545, upload-time = "2025-10-29T05:45:12.361Z" },
 ]
 
 [[package]]
