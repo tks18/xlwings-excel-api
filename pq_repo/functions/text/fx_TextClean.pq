@@ -2,8 +2,8 @@
 name: fx_TextClean
 category: Text Processing
 tags: [text, clean, trim, whitespace, normalize]
-description: "Fast text cleaning function that removes non-printable characters, trims, removes extra spaces, and normalizes whitespace."
-version: "v1.0"
+description: "High-performance text cleaning function that removes non-printable characters, trims, normalizes whitespace, and returns null if the result is empty."
+version: "v1.1"
 ---
 let
     fx_TextClean =
@@ -11,7 +11,6 @@ let
             inputText as nullable text
         ) as nullable text =>
         let
-            // Return null safely
             result =
                 if inputText = null then
                     null
@@ -20,10 +19,10 @@ let
                         // Ensure text type
                         txt = Text.From(inputText),
 
-                        // Remove non-printable characters (fast built-in)
+                        // Remove non-printable characters
                         cleaned = Text.Clean(txt),
 
-                        // Replace common whitespace characters with space
+                        // Normalize whitespace characters to space
                         normalizedWhitespace =
                             Text.Replace(
                                 Text.Replace(
@@ -35,12 +34,19 @@ let
                         // Trim leading/trailing spaces
                         trimmed = Text.Trim(normalizedWhitespace),
 
-                        // Collapse multiple spaces in a single pass
+                        // Collapse multiple spaces
                         splitList = Text.Split(trimmed, " "),
                         nonEmpty = List.Select(splitList, each _ <> ""),
-                        singleSpaced = Text.Combine(nonEmpty, " ")
+                        singleSpaced = Text.Combine(nonEmpty, " "),
+
+                        // Return null if final result is empty
+                        final =
+                            if singleSpaced = "" then
+                                null
+                            else
+                                singleSpaced
                     in
-                        singleSpaced
+                        final
         in
             result,
 
@@ -57,6 +63,7 @@ let
             "- Replacing line breaks and tabs with spaces\n" &
             "- Trimming leading and trailing spaces\n" &
             "- Collapsing multiple consecutive spaces into a single space\n" &
+            "- Returning null if the cleaned result is empty\n" &
             "Designed for high-performance bulk text transformations."
     ],
 
